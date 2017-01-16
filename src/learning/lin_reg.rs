@@ -164,7 +164,7 @@ impl LinRegressor {
 
 
 
-    fn train_with_qr(&mut self, inputs: &Matrix<f64>, targets: &Vector<f64>) -> LearningResult<()> {
+    pub fn train_with_qr(&mut self, inputs: &Matrix<f64>, targets: &Vector<f64>) -> LearningResult<()> {
         let ones = Matrix::<f64>::ones(inputs.rows(), 1);
         let full_inputs = ones.hcat(inputs);
         let n = full_inputs.cols();
