@@ -85,17 +85,21 @@ impl SupModel<Matrix<f64>, Vector<f64>> for LinRegressor {
     fn train(&mut self, inputs: &Matrix<f64>, targets: &Vector<f64>) -> LearningResult<()> {
         let ones = Matrix::<f64>::ones(inputs.rows(), 1);
         let full_inputs = ones.hcat(inputs);
-        let m = full_inputs.rows();
         let n = full_inputs.cols();
+        let m = full_inputs.rows();
+        let ns: Vec<usize> = (0..n).collect();
+        let ms: Vec<usize> = (0..m).collect();
 
         // let xt = full_inputs.transpose();
+        println!("{:?}", ns);
+        println!("{:?}", ms);
         let (q, r) = full_inputs.qr_decomp().unwrap();
-        let r = r.sub_slice([0,0],n,n).into_matrix();
-        let q = q.sub_slice([0,0],m,n).into_matrix();
+        let r = r.select(&ns,&ns);
+        let q = q.select(&ms,&ns);
         // self.parameters = Some((&xt * full_inputs).solve(&xt * targets)
                                                 //   .expect("Unable to solve linear equation."));
 
-        self.parameters = Some(r.solve(q.transpose() * targets)
+        self.parameters = Some(r.solve(q.as_slice().transpose() * targets)
                                 .expect("Unable to solve linear equation."));
         Ok(())
     }
