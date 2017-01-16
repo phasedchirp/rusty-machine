@@ -85,22 +85,10 @@ impl SupModel<Matrix<f64>, Vector<f64>> for LinRegressor {
     fn train(&mut self, inputs: &Matrix<f64>, targets: &Vector<f64>) -> LearningResult<()> {
         let ones = Matrix::<f64>::ones(inputs.rows(), 1);
         let full_inputs = ones.hcat(inputs);
-        let n = full_inputs.cols();
-        let m = full_inputs.rows();
-        let ns: Vec<usize> = (0..n).collect();
-        let ms: Vec<usize> = (0..m).collect();
 
-        // let xt = full_inputs.transpose();
-        println!("{:?}", ns);
-        println!("{:?}", ms);
-        let (q, r) = full_inputs.qr_decomp().unwrap();
-        let r = r.select(&ns,&ns);
-        let q = q.select(&ms,&ns);
-        // self.parameters = Some((&xt * full_inputs).solve(&xt * targets)
-                                                //   .expect("Unable to solve linear equation."));
-
-        self.parameters = Some(r.solve(q.as_slice().transpose() * targets)
-                                .expect("Unable to solve linear equation."));
+        let xt = full_inputs.transpose();
+        self.parameters = Some((&xt * full_inputs).solve(&xt * targets)
+                                                  .expect("Unable to solve linear equation."));
         Ok(())
     }
 
@@ -170,5 +158,26 @@ impl LinRegressor {
         let gd = GradientDesc::default();
         let optimal_w = gd.optimize(self, &initial_params[..], &full_inputs, targets);
         self.parameters = Some(Vector::new(optimal_w));
+    }
+
+
+
+
+
+    fn train_with_qr(&mut self, inputs: &Matrix<f64>, targets: &Vector<f64>) -> LearningResult<()> {
+        let ones = Matrix::<f64>::ones(inputs.rows(), 1);
+        let full_inputs = ones.hcat(inputs);
+        let n = full_inputs.cols();
+        let m = full_inputs.rows();
+        let ns: Vec<usize> = (0..n).collect();
+        let ms: Vec<usize> = (0..m).collect();
+
+        let (q, r) = full_inputs.qr_decomp().unwrap();
+        let r = r.select(&ns,&ns);
+        let q = q.select(&ms,&ns);
+
+        self.parameters = Some(r.solve(q.transpose() * targets)
+                                .expect("Unable to solve linear equation."));
+        Ok(())
     }
 }
