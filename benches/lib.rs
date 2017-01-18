@@ -9,4 +9,5 @@ mod examples {
     mod k_means;
     mod nnet;
     mod svm;
+    mod lin_reg;
 }

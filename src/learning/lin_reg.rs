@@ -163,7 +163,24 @@ impl LinRegressor {
 
 
 
-
+    /// Train the linear regression model using QR decomp rather than A*A.
+    ///
+    /// Takes training data and output values as input.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use rusty_machine::learning::lin_reg::LinRegressor;
+    /// use rusty_machine::linalg::Matrix;
+    /// use rusty_machine::linalg::Vector;
+    /// use rusty_machine::learning::SupModel;
+    ///
+    /// let mut lin_mod = LinRegressor::default();
+    /// let inputs = Matrix::new(3,1, vec![2.0, 3.0, 4.0]);
+    /// let targets = Vector::new(vec![5.0, 6.0, 7.0]);
+    ///
+    /// lin_mod.train_with_qr(&inputs, &targets).unwrap();
+    /// ```
     pub fn train_with_qr(&mut self, inputs: &Matrix<f64>, targets: &Vector<f64>) -> LearningResult<()> {
         let ones = Matrix::<f64>::ones(inputs.rows(), 1);
         let full_inputs = ones.hcat(inputs);
