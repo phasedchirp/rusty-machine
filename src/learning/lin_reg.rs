@@ -186,14 +186,11 @@ impl LinRegressor {
         let full_inputs = ones.hcat(inputs);
         let n = full_inputs.cols();
         let m = full_inputs.rows();
-        let ns: Vec<usize> = (0..n).collect();
-        let ms: Vec<usize> = (0..m).collect();
-
         let (q, r) = full_inputs.qr_decomp().unwrap();
-        let r = r.select(&ns,&ns);
-        let q = q.select(&ms,&ns);
+        let r = r.sub_slice([0,0],n,n);
+        let q = q.sub_slice([0,0],m,n).transpose();
 
-        self.parameters = Some(r.solve(q.transpose() * targets)
+        self.parameters = Some(r.solve_u_triangular(&q * targets)
                                 .expect("Unable to solve linear equation."));
         Ok(())
     }
